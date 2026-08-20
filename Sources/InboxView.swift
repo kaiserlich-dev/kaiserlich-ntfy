@@ -47,6 +47,8 @@ struct InboxView: View {
                                 .listRowBackground(item.unread ? Palette.amber.opacity(0.05) : Palette.bg)
                                 .listRowSeparatorTint(Palette.line)
                                 .contextMenu {
+                                    Button("Copy") { store.copy(item) }
+                                        .keyboardShortcut("c", modifiers: .command)
                                     Button("Open") { store.open(item) }
                                     Button("Remove", role: .destructive) { store.remove(item.id) }
                                 }

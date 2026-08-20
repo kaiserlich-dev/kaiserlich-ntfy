@@ -72,6 +72,24 @@ struct NtfyEvent: Codable, Identifiable, Hashable {
     var nonEmojiTags: [String] {
         (tags ?? []).filter { EmojiTags.map[$0] == nil }
     }
+
+    var clipboardText: String {
+        var lines: [String] = []
+        lines.append("topic: \(topic)")
+        if let title, !title.isEmpty { lines.append("title: \(title)") }
+        if resolvedPriority != 3 { lines.append("priority: \(resolvedPriority)") }
+        if !nonEmojiTags.isEmpty { lines.append("tags: \(nonEmojiTags.joined(separator: ", "))") }
+        let body = message?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !body.isEmpty {
+            lines.append("")
+            lines.append(body)
+        }
+        if let click, !click.isEmpty {
+            lines.append("")
+            lines.append(click)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 struct InboxItem: Identifiable, Hashable, Codable {
