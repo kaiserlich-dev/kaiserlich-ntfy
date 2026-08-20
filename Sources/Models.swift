@@ -114,7 +114,12 @@ enum EmojiTags {
     }
 }
 
-enum KaiserlichDefaults {
+enum AppDefaults {
+    static let serverURL = ""
+    static let topics: [String] = []
+}
+
+enum KaiserlichPreset {
     static let serverURL = "https://ntfy.kaiserlich.dev"
     static let topics = [
         "beszel",

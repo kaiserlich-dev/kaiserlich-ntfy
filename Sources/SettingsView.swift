@@ -14,8 +14,8 @@ struct SettingsView: View {
                 topicsCard
                 behaviorCard
                 HStack {
-                    Button("Restore Kaiserlich topics") {
-                        store.restoreKaiserlichTopics()
+                    Button("Kaiserlich preset") {
+                        store.applyKaiserlichPreset()
                     }
                     Spacer()
                     Button("Send test") {
@@ -41,7 +41,7 @@ struct SettingsView: View {
                 .font(.system(size: 13, weight: .semibold, design: .monospaced))
                 .tracking(3)
                 .foregroundStyle(Palette.amber)
-            Text("Subscribe to ntfy.kaiserlich.dev and bounce messages into the menu bar.")
+            Text("Subscribe to any ntfy server and bounce messages into the menu bar.")
                 .font(.system(size: 13))
                 .foregroundStyle(Palette.muted)
         }
@@ -50,7 +50,7 @@ struct SettingsView: View {
     private var serverCard: some View {
         card("Server") {
             labeled("Base URL") {
-                TextField("https://ntfy.kaiserlich.dev", text: $store.serverURL)
+                TextField("https://ntfy.sh", text: $store.serverURL)
                     .textFieldStyle(.plain)
                     .font(.system(size: 13, design: .monospaced))
                     .padding(8)
@@ -125,7 +125,7 @@ struct SettingsView: View {
 
     private var topicsCard: some View {
         card("Topics") {
-            Text("One per line. Default list is the Kaiserlich ops set.")
+            Text("One topic per line.")
                 .font(.system(size: 11))
                 .foregroundStyle(Palette.muted)
             TextEditor(text: $store.topicsText)

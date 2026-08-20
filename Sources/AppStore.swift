@@ -69,8 +69,8 @@ final class AppStore: ObservableObject, NtfyClientDelegate {
         historyURL = support.appendingPathComponent("history.json")
         deletedURL = support.appendingPathComponent("deleted.json")
 
-        serverURL = defaults.string(forKey: "serverURL") ?? KaiserlichDefaults.serverURL
-        topicsText = defaults.string(forKey: "topics") ?? KaiserlichDefaults.topics.joined(separator: "\n")
+        serverURL = defaults.string(forKey: "serverURL") ?? AppDefaults.serverURL
+        topicsText = defaults.string(forKey: "topics") ?? AppDefaults.topics.joined(separator: "\n")
         username = defaults.string(forKey: "username") ?? ""
         minPriority = defaults.object(forKey: "minPriority") as? Int ?? 2
         soundEnabled = defaults.object(forKey: "soundEnabled") as? Bool ?? true
@@ -108,7 +108,7 @@ final class AppStore: ObservableObject, NtfyClientDelegate {
         startedAt = Date()
         applyLoginItem()
         reconnect()
-        if !hasAuth {
+        if needsSetup || !hasAuth {
             settingsOpen = true
         }
     }
@@ -379,11 +379,9 @@ final class AppStore: ObservableObject, NtfyClientDelegate {
         }
     }
 
-    func restoreKaiserlichTopics() {
-        topicsText = KaiserlichDefaults.topics.joined(separator: "\n")
-        if serverURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            serverURL = KaiserlichDefaults.serverURL
-        }
+    func applyKaiserlichPreset() {
+        serverURL = KaiserlichPreset.serverURL
+        topicsText = KaiserlichPreset.topics.joined(separator: "\n")
     }
 
     func handleWake() {

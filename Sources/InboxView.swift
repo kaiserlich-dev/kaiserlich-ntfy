@@ -163,8 +163,11 @@ struct InboxView: View {
     }
 
     private var emptyBody: String {
+        if store.needsSetup {
+            return "Open settings: server URL, topics, then username/password or token"
+        }
         if !store.hasAuth {
-            return "Open settings and enter your ntfy username and password"
+            return "Open settings and enter your ntfy username and password, or an access token"
         }
         if case .failed(let reason) = store.connection { return reason }
         return "New messages from your topics land here."
