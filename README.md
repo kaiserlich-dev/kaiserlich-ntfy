@@ -8,6 +8,7 @@ Lives in the menu bar, keeps a subscribe stream open, shows native banners, and 
 
 ```bash
 brew tap kaiserlich-dev/tap
+brew trust kaiserlich-dev/tap
 brew install --cask ntfybar
 ```
 
