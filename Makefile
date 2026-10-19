@@ -1,7 +1,7 @@
-.PHONY: build install package
+.PHONY: build install release
 build:
 	bash scripts/build.sh
 install:
 	bash scripts/install.sh
-package:
-	bash scripts/package.sh
+release:
+	bash scripts/release.sh $(VERSION)

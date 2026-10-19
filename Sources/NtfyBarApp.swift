@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Sparkle
 import SwiftUI
 
 @main
@@ -14,7 +15,7 @@ struct NtfyBarApp: App {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     static var shared: AppDelegate?
 
     private let store = AppStore.shared
@@ -23,6 +24,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
     private var eventMonitor: Any?
+    // Checks the releases feed every 4 hours and offers new versions itself.
+    let updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    // A transient popover closes on the bell's mouse-down, before the click
+    // reaches togglePopover; without this the same click would reopen it.
+    private var lastClose = Date.distantPast
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.shared = self
@@ -46,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let root = SettingsView().environmentObject(store)
             let hosting = NSHostingController(rootView: root)
             let window = NSWindow(contentViewController: hosting)
-            window.title = "ntfy"
+            window.title = "ntfy Settings"
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.setContentSize(NSSize(width: 480, height: 620))
@@ -58,12 +64,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         store.settingsOpen = true
     }
 
+    func checkForUpdates() {
+        popover.performClose(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        updater.checkForUpdates(nil)
+    }
+
     @objc func togglePopover() {
         guard let button = statusItem.button else { return }
         if popover.isShown {
             popover.performClose(nil)
             stopMonitor()
-        } else {
+        } else if Date().timeIntervalSince(lastClose) > 0.3 {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
             startMonitor()
@@ -82,11 +94,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupPopover() {
         popover = NSPopover()
         popover.behavior = .transient
+        popover.delegate = self
         popover.animates = false
         popover.contentSize = NSSize(width: 380, height: 520)
         popover.contentViewController = NSHostingController(
             rootView: InboxView().environmentObject(store)
         )
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        lastClose = Date()
+        stopMonitor()
     }
 
     private func bind() {

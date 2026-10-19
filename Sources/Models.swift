@@ -154,23 +154,24 @@ enum KaiserlichPreset {
 }
 
 enum Palette {
-    static let bg = Color(red: 0.07, green: 0.07, blue: 0.06)
-    static let bgRaised = Color(red: 0.11, green: 0.10, blue: 0.09)
-    static let line = Color.white.opacity(0.08)
-    static let text = Color(red: 0.93, green: 0.90, blue: 0.84)
-    static let muted = Color(red: 0.62, green: 0.58, blue: 0.52)
-    static let amber = Color(red: 0.91, green: 0.65, blue: 0.29)
-    static let copper = Color(red: 0.72, green: 0.42, blue: 0.27)
-    static let live = Color(red: 0.49, green: 0.72, blue: 0.49)
-    static let danger = Color(red: 0.89, green: 0.29, blue: 0.29)
+    // System colours: follow light/dark mode and the user's accent colour.
+    static let bg = Color.clear
+    static let bgRaised = Color.primary.opacity(0.06)
+    static let field = Color(nsColor: .textBackgroundColor)
+    static let line = Color(nsColor: .separatorColor)
+    static let text = Color.primary
+    static let muted = Color.secondary
+    static let amber = Color.accentColor
+    static let copper = Color(nsColor: .systemOrange)
+    static let live = Color(nsColor: .systemGreen)
+    static let danger = Color(nsColor: .systemRed)
 
-    static func priority(_ value: Int) -> Color {
+    // Only urgent messages get a colour; ntfy's default (3) and below stay plain.
+    static func priority(_ value: Int) -> Color? {
         switch value {
         case 5: return danger
-        case 4: return amber
-        case 3: return copper
-        case 2: return muted
-        default: return muted.opacity(0.5)
+        case 4: return copper
+        default: return nil
         }
     }
 }

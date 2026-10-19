@@ -12,11 +12,7 @@ brew trust kaiserlich-dev/tap
 brew install --cask ntfybar
 ```
 
-If Gatekeeper blocks the ad-hoc signature:
-
-```bash
-xattr -cr /Applications/NtfyBar.app
-```
+Or download `NtfyBar-x.y.z.dmg` from [Releases](https://github.com/kaiserlich-dev/kaiserlich-ntfy/releases/latest). It is signed with a Developer ID and notarized, and checks for updates every 4 hours.
 
 From source:
 
@@ -41,8 +37,12 @@ bash scripts/build.sh
 open dist/NtfyBar.app
 ```
 
-Release zip:
+Release (signed, notarized DMG plus the Sparkle update feed):
 
 ```bash
-bash scripts/package.sh
+bash scripts/release.sh 1.1.0            # build and verify only
+bash scripts/release.sh 1.1.0 --publish  # also create the GitHub release
 ```
+
+Needs the Developer ID certificate, the `pastefast-notarize` app password and the
+Sparkle signing key (`generate_keys --account ntfy-bar`) in the login keychain.
