@@ -7,10 +7,15 @@ let package = Package(
     products: [
         .executable(name: "NtfyBar", targets: ["NtfyBar"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.6.4"),
+    ],
     targets: [
         .executableTarget(
             name: "NtfyBar",
-            path: "Sources"
+            dependencies: [.product(name: "Sparkle", package: "Sparkle")],
+            path: "Sources",
+            linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]
         ),
     ],
     swiftLanguageVersions: [.v5]

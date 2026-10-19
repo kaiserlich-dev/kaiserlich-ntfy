@@ -310,6 +310,11 @@ final class AppStore: ObservableObject, NtfyClientDelegate {
         items.first { $0.id == id }
     }
 
+    func copy(_ item: InboxItem) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(item.event.clipboardText, forType: .string)
+    }
+
     func open(_ item: InboxItem) {
         markRead(item.id)
         if let click = item.event.click, let url = URL(string: click) {

@@ -8,7 +8,7 @@ struct InboxView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            Divider().overlay(Palette.line)
+            Divider()
             if store.items.isEmpty {
                 empty
             } else {
@@ -22,9 +22,9 @@ struct InboxView: View {
                         ) {
                             store.removeTopic(group.topic)
                         }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .listRowBackground(Palette.bgRaised)
-                        .listRowSeparatorTint(Palette.line)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 8, bottom: 0, trailing: 8))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                         .contentShape(Rectangle())
                         .onTapGesture { store.toggleTopic(group.topic) }
                         .contextMenu {
@@ -43,11 +43,13 @@ struct InboxView: View {
                                 }
                                 .contentShape(Rectangle())
                                 .onTapGesture { store.open(item) }
-                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                                .listRowBackground(item.unread ? Palette.amber.opacity(0.05) : Palette.bg)
-                                .listRowSeparatorTint(Palette.line)
+                                .listRowInsets(EdgeInsets(top: 3, leading: 8, bottom: 3, trailing: 8))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
                                 .contextMenu {
                                     Button("Open") { store.open(item) }
+                                    Button("Copy") { store.copy(item) }
+                                        .keyboardShortcut("c", modifiers: .command)
                                     Button("Remove", role: .destructive) { store.remove(item.id) }
                                 }
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -64,7 +66,7 @@ struct InboxView: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
-            Divider().overlay(Palette.line)
+            Divider()
             footer
         }
         .frame(width: 380, height: 520)
@@ -80,16 +82,12 @@ struct InboxView: View {
             Circle()
                 .fill(statusColor)
                 .frame(width: 8, height: 8)
-                .shadow(color: statusColor.opacity(0.8), radius: 4)
-            VStack(alignment: .leading, spacing: 1) {
-                Text("NTFY")
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .tracking(2)
-                    .foregroundStyle(Palette.text)
-                Text(store.connection.label.uppercased())
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Palette.muted)
-            }
+            Text("ntfy")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Palette.text)
+            Text(store.connection.label)
+                .font(.system(size: 12))
+                .foregroundStyle(Palette.muted)
             Spacer()
             IconButton(system: store.muted ? "bell.slash.fill" : "bell.fill", active: store.muted) {
                 store.muted.toggle()
@@ -100,8 +98,7 @@ struct InboxView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background(Palette.bgRaised)
+        .padding(.vertical, 10)
     }
 
     private var empty: some View {
@@ -132,14 +129,15 @@ struct InboxView: View {
             Spacer()
             Button("Web") { store.openWeb() }
                 .buttonStyle(.plain)
+            Button("Updates") { AppDelegate.shared?.checkForUpdates() }
+                .buttonStyle(.plain)
             Button("Quit") { NSApp.terminate(nil) }
                 .buttonStyle(.plain)
         }
-        .font(.system(size: 11, weight: .medium, design: .monospaced))
+        .font(.system(size: 11, weight: .medium))
         .foregroundStyle(Palette.muted)
         .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(Palette.bgRaised)
+        .padding(.vertical, 9)
     }
 
     private var statusColor: Color {
@@ -182,10 +180,12 @@ struct MessageRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            RoundedRectangle(cornerRadius: 1)
-                .fill(Palette.priority(item.priority))
-                .frame(width: 3)
-                .padding(.vertical, 2)
+            if let color = Palette.priority(item.priority) {
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(color)
+                    .frame(width: 3)
+                    .padding(.vertical, 2)
+            }
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(item.event.displayTitle)
@@ -194,7 +194,7 @@ struct MessageRow: View {
                         .lineLimit(2)
                     Spacer()
                     Text(RelativeTime.string(from: item.event.date, now: now))
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.system(size: 11))
                         .foregroundStyle(Palette.muted)
                 }
                 if let message = item.event.message, !message.isEmpty, message != item.event.displayTitle {
@@ -205,7 +205,7 @@ struct MessageRow: View {
                 }
                 if !item.event.nonEmojiTags.isEmpty {
                     Text(item.event.nonEmojiTags.joined(separator: " · "))
-                        .font(.system(size: 10, design: .monospaced))
+                        .font(.system(size: 10))
                         .foregroundStyle(Palette.muted.opacity(0.8))
                         .lineLimit(1)
                 }
@@ -229,6 +229,10 @@ struct MessageRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(item.unread ? Palette.amber.opacity(0.12) : Palette.bgRaised)
+        )
         .onHover { hovering = $0 }
     }
 }
@@ -249,17 +253,17 @@ struct TopicHeader: View {
                 .rotationEffect(.degrees(expanded ? 90 : 0))
                 .frame(width: 12)
             Text(topic)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Palette.amber)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Palette.muted)
                 .lineLimit(1)
             Text("\(count)")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.system(size: 10))
                 .foregroundStyle(Palette.muted)
             Spacer()
             if unread > 0 {
                 Text("\(unread)")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundStyle(Palette.bg)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 1)
                     .background(Palette.amber)
@@ -276,8 +280,8 @@ struct TopicHeader: View {
             .opacity(hovering ? 1 : 0)
             .help("Clear topic")
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 4)
         .onHover { hovering = $0 }
     }
 }

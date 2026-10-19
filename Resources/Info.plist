@@ -26,6 +26,14 @@
     <string>public.app-category.utilities</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
+    <key>SUFeedURL</key>
+    <string>https://github.com/kaiserlich-dev/kaiserlich-ntfy/releases/latest/download/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>lK1lf73vmwVXBZLt7aD+E/mv2JmLTVG+M6zjtdkr/b8=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>14400</integer>
     <key>LSUIElement</key>
     <true/>
     <key>NSHighResolutionCapable</key>

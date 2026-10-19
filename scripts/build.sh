@@ -36,7 +36,16 @@ if [[ -f "$ICON_SRC" ]]; then
   rm -rf "$ICONSET"
 fi
 
-codesign --force --deep --sign - \
+SPARKLE="$(find "$ROOT/.build/artifacts" -path "*macos*/Sparkle.framework" -maxdepth 6 | head -n 1)"
+mkdir -p "$DIST/Contents/Frameworks"
+cp -R "$SPARKLE" "$DIST/Contents/Frameworks/"
+
+# A stable identity keeps Keychain's "Always Allow" valid across rebuilds;
+# ad-hoc signatures change every build and re-prompt each time.
+IDENTITY="${SIGN_IDENTITY:-Developer ID Application: Julian Kaiser (XJ92F6A382)}"
+security find-identity -v -p codesigning | grep -q "$IDENTITY" || IDENTITY="-"
+codesign --force --deep --options runtime --timestamp=none --sign "$IDENTITY" "$DIST/Contents/Frameworks/Sparkle.framework"
+codesign --force --options runtime --sign "$IDENTITY" \
   --entitlements "$ROOT/Resources/NtfyBar.entitlements" \
   --identifier "$BUNDLE_ID" \
   "$DIST" >/dev/null
